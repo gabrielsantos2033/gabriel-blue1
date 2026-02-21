@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gabriel Blue</title>
-    <script src="https://cdn.jsdelivr.net/npm/@atproto/api@0.6.26/dist/index.bundle.js"></script>
+    <script src="https://unpkg.com/@atproto/api@0.6.26/dist/bundle.js"></script>
     <style>
         body { font-family: sans-serif; background-color: #e6f2ff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .box { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 350px; text-align: center; border: 2px solid #0085ff; }
-        h1 { color: #0085ff; }
+        h1 { color: #0085ff; margin-bottom: 20px; }
         textarea { width: 100%; height: 120px; border-radius: 12px; border: 2px solid #d0e3ff; padding: 12px; font-size: 16px; box-sizing: border-box; resize: none; }
         button { background: #0085ff; color: white; border: none; padding: 15px; border-radius: 30px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 15px; }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-        #status { margin-top: 15px; font-size: 14px; font-weight: bold; }
+        #status { margin-top: 15px; font-size: 14px; color: #555; }
     </style>
 </head>
 <body>
@@ -20,39 +19,35 @@
         <h1>Gabriel Blue 🚀</h1>
         <textarea id="texto" placeholder="O que você está pensando?"></textarea>
         <button id="btn" onclick="postar()">Postar no Bluesky</button>
-        <div id="status">Verificando conexão...</div>
+        <div id="status">Verificando sistema...</div>
     </div>
 
     <script>
-        // Função para garantir que a biblioteca carregou
-        function checarBiblioteca() {
+        // Função simplificada de checagem
+        function verificar() {
             if (window.atproto) {
-                document.getElementById('status').innerText = "✅ Pronto para postar!";
-                document.getElementById('status').style.color = "blue";
+                document.getElementById('status').innerText = "✅ Sistema Pronto!";
             } else {
-                setTimeout(checarBiblioteca, 500);
+                setTimeout(verificar, 500);
             }
         }
-        checarBiblioteca();
+        verificar();
 
         async function postar() {
-            const btn = document.getElementById('btn');
             const status = document.getElementById('status');
             const texto = document.getElementById('texto').value;
 
-            if(!texto) return alert("Escreva algo primeiro!");
-            if(!window.atproto) return alert("Aguarde a conexão com o Bluesky...");
+            if (!window.atproto) return alert("A biblioteca ainda está carregando, espere 5 segundos.");
+            if (!texto) return alert("Escreva algo!");
 
-            btn.disabled = true;
-            status.innerText = "⏳ Enviando...";
-
+            status.innerText = "⏳ Enviando post...";
+            
             try {
-                const { BskyAgent } = window.atproto;
-                const agent = new BskyAgent({ service: 'https://bsky.social' });
+                const agent = new atproto.BskyAgent({ service: 'https://bsky.social' });
 
                 await agent.login({
                     identifier: 'gsooficial.bsky.social',
-                    password: 'ujk4-cdf7-25we-5oxy' // <--- COLOQUE SUA SENHA DE APP AQUI
+                    password: 'SUA-SENHA-DE-APP' // <--- COLOQUE SUA SENHA AQUI
                 });
 
                 await agent.post({
@@ -60,14 +55,10 @@
                     createdAt: new Date().toISOString()
                 });
 
-                status.style.color = "green";
-                status.innerText = "✅ SUCESSO! Veja no seu perfil.";
+                status.innerText = "✅ POSTADO COM SUCESSO!";
                 document.getElementById('texto').value = "";
             } catch (e) {
-                status.style.color = "red";
                 status.innerText = "❌ Erro: " + e.message;
-            } finally {
-                btn.disabled = false;
             }
         }
     </script>
